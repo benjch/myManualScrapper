@@ -9,10 +9,10 @@
             <level>INFO</level>
         </filter>
 
-        <file>../logs/MyImageFilter.log</file>
+        <file>../logs/MyManualScrapper.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/MyImageFilter-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <fileNamePattern>logs/MyManualScrapper-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
 
