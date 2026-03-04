@@ -14,7 +14,7 @@ public class AppConfigStore {
     private final Path configFile;
 
     public AppConfigStore() {
-        this(Path.of(System.getProperty("user.home"), ".myimagefilter", "config.properties"));
+        this(Path.of(System.getProperty("user.home"), ".mymanualscrapper", "config.properties"));
     }
 
     AppConfigStore(Path configFile) {
@@ -50,7 +50,7 @@ public class AppConfigStore {
         try {
             Files.createDirectories(configFile.getParent());
             try (OutputStream outputStream = Files.newOutputStream(configFile)) {
-                properties.store(outputStream, "myImageFilter configuration");
+                properties.store(outputStream, "myManualScrapper configuration");
             }
         } catch (IOException e) {
             throw new IllegalStateException("Unable to save config", e);

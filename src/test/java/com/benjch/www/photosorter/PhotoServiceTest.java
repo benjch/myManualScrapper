@@ -34,7 +34,7 @@ class PhotoServiceTest {
     }
 
     @Test
-    void keepImageShouldUseParentFolderNameAndCoverSuffix() throws Exception {
+    void keepImageShouldUseParentFolderName() throws Exception {
         PhotoService service = new PhotoService(new ThumbnailCache());
         Path sourceDir = tempDir.resolve("my_game");
         Path keepDir = tempDir.resolve("keep");
@@ -44,14 +44,14 @@ class PhotoServiceTest {
         Path source = sourceDir.resolve("image.png");
         Files.writeString(source, "fake-image-content");
 
-        PhotoService.KeepResult result = service.keepImage(source.toString(), keepDir.toString(), "_cover");
+        PhotoService.KeepResult result = service.keepImage(source.toString(), keepDir.toString());
 
-        assertEquals("my_game_cover.jpg", result.filename());
-        assertTrue(Files.exists(keepDir.resolve("my_game_cover.jpg")));
+        assertEquals("my_game.jpg", result.filename());
+        assertTrue(Files.exists(keepDir.resolve("my_game.jpg")));
     }
 
     @Test
-    void keepImageShouldUseRequestedVariantSuffixAndIncrement() throws Exception {
+    void keepImageShouldIncrementWithoutVariantSuffix() throws Exception {
         PhotoService service = new PhotoService(new ThumbnailCache());
         Path sourceDir = tempDir.resolve("my_game");
         Path keepDir = tempDir.resolve("keep");
@@ -60,11 +60,11 @@ class PhotoServiceTest {
 
         Path source = sourceDir.resolve("image.jpg");
         Files.writeString(source, "fake-image-content");
-        Files.createFile(keepDir.resolve("my_game_instructions.jpg"));
+        Files.createFile(keepDir.resolve("my_game.jpg"));
 
-        PhotoService.KeepResult result = service.keepImage(source.toString(), keepDir.toString(), "_instructions");
+        PhotoService.KeepResult result = service.keepImage(source.toString(), keepDir.toString());
 
-        assertEquals("my_game_instructions_01.jpg", result.filename());
-        assertTrue(Files.exists(keepDir.resolve("my_game_instructions_01.jpg")));
+        assertEquals("my_game_01.jpg", result.filename());
+        assertTrue(Files.exists(keepDir.resolve("my_game_01.jpg")));
     }
 }

@@ -129,7 +129,7 @@ public class PhotoService {
         thumbnailCache.invalidateByPrefix(path.toString());
     }
 
-    public KeepResult keepImage(String rawPath, String keepDir, String keepLabelSuffix) throws IOException {
+    public KeepResult keepImage(String rawPath, String keepDir) throws IOException {
         Path source = resolveSafePath(rawPath);
         if (!isImage(source)) {
             throw new IllegalArgumentException("Keep only allowed on image files");
@@ -140,8 +140,7 @@ public class PhotoService {
         String folderName = source.getParent() != null && source.getParent().getFileName() != null
                 ? source.getParent().getFileName().toString()
                 : baseNameWithoutExtension(source.getFileName().toString());
-        String suffix = keepLabelSuffix == null ? "" : keepLabelSuffix;
-        Path target = findAvailableName(keepPath, folderName + suffix, ".jpg");
+        Path target = findAvailableName(keepPath, folderName, ".jpg");
 
         Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
         return new KeepResult(target.toString(), target.getFileName().toString());
