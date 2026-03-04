@@ -1,4 +1,4 @@
-# myImageFilter — Trieur local de photos (mosaïque + plein écran)
+# myManualScrapper — Trieur local de photos (mosaïque + plein écran)
 
 Application web locale pour trier des photos rapidement au clavier (inspirée FastStone), sans cloud.
 
@@ -32,7 +32,7 @@ Application web locale pour trier des photos rapidement au clavier (inspirée Fa
 
 ```bash
 mvn clean package
-java -jar target/myImageFilter-merge-dependencies.jar serve -port 8080 -keepDir /chemin/vers/KEEP
+java -jar target/myManualScrapper-merge-dependencies.jar serve -port 8080 -keepDir /chemin/vers/KEEP
 ```
 
 Puis ouvrir : `http://localhost:8080`

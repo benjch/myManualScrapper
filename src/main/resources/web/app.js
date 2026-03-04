@@ -1,6 +1,6 @@
 const DEFAULT_START_PATH = 'C:\\Users\\NR5145\\HD_D\\benjch\\gitBenjch\\myScrapper\\cover';
 
-const VIEWER_TOOLBAR_BASE_TEXT = 'Échap: retour mosaïque • ←/→ navigation • Suppr supprimer • 1/2/3/4 keep • Backspace/Échap (mosaïque): dossier parent';
+const VIEWER_TOOLBAR_BASE_TEXT = 'Échap: retour mosaïque • ←/→ navigation • Suppr supprimer • K keep • Backspace/Échap (mosaïque): dossier parent';
 
 const state = {
   currentPath: '',
@@ -24,7 +24,6 @@ const viewerToolbar = document.getElementById('viewerToolbar');
 const stretchToggleBtn = document.getElementById('stretchToggleBtn');
 const toast = document.getElementById('toast');
 const keepDirInput = document.getElementById('keepDirInput');
-const keepActions = document.getElementById('keepActions');
 
 folderPathInput.value = DEFAULT_START_PATH;
 
@@ -37,14 +36,6 @@ folderPathInput.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('keydown', onKeyDown);
-
-if (keepActions) {
-  keepActions.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-keep-variant]');
-    if (!button) return;
-    keepCurrent(button.dataset.keepVariant).catch(handleError);
-  });
-}
 
 if (stretchToggleBtn) {
   stretchToggleBtn.addEventListener('click', () => {
@@ -170,7 +161,6 @@ function openFullscreenFromSelected() {
   state.currentImageIndex = state.images.findIndex((img) => img.path === entry.path);
   showCurrentImage();
   viewer.classList.remove('hidden');
-  updateKeepActionsVisibility();
 }
 
 function setStretchMode(enabled) {
@@ -198,13 +188,7 @@ function showCurrentImage() {
 function closeViewer() {
   state.fullScreen = false;
   viewer.classList.add('hidden');
-  updateKeepActionsVisibility();
   if (viewerToolbar) viewerToolbar.textContent = VIEWER_TOOLBAR_BASE_TEXT;
-}
-
-function updateKeepActionsVisibility() {
-  if (!keepActions) return;
-  keepActions.classList.toggle('hidden', !state.fullScreen);
 }
 
 async function deleteCurrent() {
@@ -240,14 +224,14 @@ async function deleteCurrent() {
   }
 }
 
-async function keepCurrent(variant = 'normal') {
+async function keepCurrent() {
   const entry = state.fullScreen ? state.images[state.currentImageIndex] : currentEntry();
   if (!entry || entry.type === 'folder') {
     showToast('Action non disponible sur un dossier');
     return;
   }
 
-  const result = await api('/api/keep', 'POST', { path: entry.path, keepDir: state.keepDir, variant });
+  const result = await api('/api/keep', 'POST', { path: entry.path, keepDir: state.keepDir });
   showToast(`Copié dans Keep : ${result.filename}`);
 
   if (state.fullScreen) {
@@ -319,14 +303,8 @@ function onKeyDown(e) {
       closeViewer();
     } else if (e.key === 'Delete') {
       deleteCurrent().catch(handleError);
-    } else if (e.key === '1') {
-      keepCurrent('normal').catch(handleError);
-    } else if (e.key === '2') {
-      keepCurrent('back').catch(handleError);
-    } else if (e.key === '3') {
-      keepCurrent('instruction').catch(handleError);
-    } else if (e.key === '4') {
-      keepCurrent('divers').catch(handleError);
+    } else if (e.key.toLowerCase() === 'k') {
+      keepCurrent().catch(handleError);
     }
     return;
   }
@@ -345,14 +323,8 @@ function onKeyDown(e) {
     openSelected().catch(handleError);
   } else if (e.key === 'Delete') {
     deleteCurrent().catch(handleError);
-  } else if (e.key === '1') {
-    keepCurrent('normal').catch(handleError);
-  } else if (e.key === '2') {
-    keepCurrent('back').catch(handleError);
-  } else if (e.key === '3') {
-    keepCurrent('instruction').catch(handleError);
-  } else if (e.key === '4') {
-    keepCurrent('divers').catch(handleError);
+  } else if (e.key.toLowerCase() === 'k') {
+    keepCurrent().catch(handleError);
   }
 }
 

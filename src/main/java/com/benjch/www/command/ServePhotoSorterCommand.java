@@ -92,8 +92,7 @@ public class ServePhotoSorterCommand implements Command {
                 if (keepFolder == null || keepFolder.isBlank()) {
                     throw new IllegalArgumentException("Keep directory is not configured");
                 }
-                String keepVariant = body.getOrDefault("variant", "normal");
-                KeepResult result = photoService.keepImage(body.get("path"), keepFolder, suffixForKeepVariant(keepVariant));
+                KeepResult result = photoService.keepImage(body.get("path"), keepFolder);
                 sendJson(exchange, 200, Map.of("status", "ok", "filename", result.filename(), "path", result.path()));
             }));
 
@@ -219,16 +218,6 @@ public class ServePhotoSorterCommand implements Command {
             result.put(key, value);
         }
         return result;
-    }
-
-    private String suffixForKeepVariant(String variant) {
-        return switch (variant == null ? "normal" : variant) {
-            case "normal" -> "_cover";
-            case "back" -> "_back";
-            case "instruction" -> "_instructions";
-            case "divers" -> "_divers";
-            default -> throw new IllegalArgumentException("Unknown keep variant: " + variant);
-        };
     }
 
     private String staticContentType(String path) {
