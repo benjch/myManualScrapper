@@ -111,6 +111,25 @@ public class ServePhotoSorterCommand implements Command {
                 throw new IllegalArgumentException("Unsupported method");
             }));
 
+            server.createContext("/api/import-from-html", wrap(exchange -> {
+                requireMethod(exchange, "POST");
+                Map<String, String> body = bodyAsMap(exchange);
+                String folderPath = body.get("folderPath");
+                String html = body.get("html");
+                PhotoService.ImportResult result = photoService.importImagesFromHtml(folderPath, html);
+                sendJson(exchange, 200, Map.of("status", "ok", "importedCount", result.importedCount(), "files", result.files()));
+            }));
+
+            server.createContext("/api/import-image-from-clipboard", wrap(exchange -> {
+                requireMethod(exchange, "POST");
+                Map<String, String> body = bodyAsMap(exchange);
+                String folderPath = body.get("folderPath");
+                String imageBase64 = body.get("imageBase64");
+                String mimeType = body.getOrDefault("mimeType", "");
+                PhotoService.ClipboardImportResult result = photoService.importSingleImageFromClipboard(folderPath, imageBase64, mimeType);
+                sendJson(exchange, 200, Map.of("status", "ok", "path", result.path(), "filename", result.filename()));
+            }));
+
             server.createContext("/", exchange -> {
                 try {
                     String path = exchange.getRequestURI().getPath();

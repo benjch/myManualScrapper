@@ -17,6 +17,8 @@ const state = {
 const grid = document.getElementById('grid');
 const folderPathInput = document.getElementById('folderPathInput');
 const openFolderBtn = document.getElementById('openFolderBtn');
+const loadImagesBtn = document.getElementById('loadImagesBtn');
+const loadImageBtn = document.getElementById('loadImageBtn');
 const imageCount = document.getElementById('imageCount');
 const viewer = document.getElementById('viewer');
 const viewerImage = document.getElementById('viewerImage');
@@ -29,6 +31,12 @@ folderPathInput.value = DEFAULT_START_PATH;
 
 document.getElementById('saveKeepBtn').addEventListener('click', saveKeepDir);
 openFolderBtn.addEventListener('click', () => openFolderFromInput().catch(handleError));
+if (loadImagesBtn) {
+  loadImagesBtn.addEventListener('click', () => loadImagesFromClipboard().catch(handleError));
+}
+if (loadImageBtn) {
+  loadImageBtn.addEventListener('click', () => loadImageFromClipboard().catch(handleError));
+}
 folderPathInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     openFolderFromInput().catch(handleError);
@@ -259,6 +267,79 @@ async function goParent() {
   await loadFolder(parent, previousPath);
 }
 
+
+
+async function loadImageFromClipboard() {
+  if (!state.currentPath) {
+    showToast('Aucun dossier courant');
+    return;
+  }
+
+  if (!navigator.clipboard || !navigator.clipboard.read) {
+    throw new Error('Lecture image du presse-papier non supportée par ce navigateur');
+  }
+
+  const clipboardItems = await navigator.clipboard.read();
+  let imageBlob = null;
+
+  for (const item of clipboardItems) {
+    const imageType = item.types.find((type) => type.startsWith('image/'));
+    if (imageType) {
+      imageBlob = await item.getType(imageType);
+      break;
+    }
+  }
+
+  if (!imageBlob) {
+    throw new Error('Aucune image trouvée dans le presse-papier');
+  }
+
+  const arrayBuffer = await imageBlob.arrayBuffer();
+  const imageBase64 = arrayBufferToBase64(arrayBuffer);
+
+  const result = await api('/api/import-image-from-clipboard', 'POST', {
+    folderPath: state.currentPath,
+    imageBase64,
+    mimeType: imageBlob.type || ''
+  });
+
+  await loadFolder(state.currentPath, result.path);
+  showToast(`Image chargée : ${result.filename}`);
+}
+
+function arrayBufferToBase64(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+async function loadImagesFromClipboard() {
+  if (!state.currentPath) {
+    showToast('Aucun dossier courant');
+    return;
+  }
+
+  if (!navigator.clipboard || !navigator.clipboard.readText) {
+    throw new Error('Lecture presse-papier non supportée par ce navigateur');
+  }
+
+  const html = await navigator.clipboard.readText();
+  if (!html || !html.trim()) {
+    throw new Error('Presse-papier vide');
+  }
+
+  const result = await api('/api/import-from-html', 'POST', {
+    folderPath: state.currentPath,
+    html
+  });
+
+  await loadFolder(state.currentPath);
+  showToast(`${result.importedCount || 0} image(s) chargée(s)`);
+}
 async function saveKeepDir() {
   const keepDir = keepDirInput.value.trim();
   const result = await api('/api/config', 'POST', { keepDir });
