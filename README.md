@@ -76,3 +76,19 @@ Puis ouvrir : `http://localhost:8080`
 ```bash
 mvn test
 ```
+
+## Nouveau: téléchargement des images derrière les miniatures (href)
+
+Commande CLI dédiée:
+
+```bash
+java -jar target/myManualScrapper-merge-dependencies.jar downloadHrefImages \
+  -startUrl "https://www.abandonware-magazines.org/affiche_mag.php?mag=84" \
+  -outputDir "C:\\Users\\NR5145\\HD_D\\benjch\\current\\joypad1"
+```
+
+Options utiles:
+- `-maxPages` : limite de pages HTML à crawler (défaut `200`)
+- `-maxImages` : limite de fichiers à télécharger (défaut `2000`)
+
+Le crawler télécharge les URL d’images trouvées dans les `href` des balises `<a>` (et non les miniatures `img src`).
